@@ -1,0 +1,44 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
+  password   String
+  role       String
+  watchlist  Watchlist[]
+}
+
+model Movie {
+  id          Int       @id @default(autoincrement())
+  title       String
+  genre       String
+  decade      Int
+  mood        String
+  description String
+  posterUrl   String
+  rating      Float
+  watchlist   Watchlist[]
+}
+
+model Watchlist {
+  id      Int    @id @default(autoincrement())
+  userId  Int
+  movieId Int
+  user    User   @relation(fields: [userId], references: [id])
+  movie   Movie  @relation(fields: [movieId], references: [id])
+
+  @@unique([userId, movieId]) // Prevent duplicates
+}
+
+enum Role {
+  ADMIN
+  USER
+}

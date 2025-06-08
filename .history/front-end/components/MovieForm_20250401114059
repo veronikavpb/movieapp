@@ -1,0 +1,96 @@
+import React, { useState } from 'react';
+import MovieService from '../services/movieService';
+import { Movie } from '../types';
+
+type Props = {
+    movie?: Movie | null;
+    setMovies: React.Dispatch<React.SetStateAction<Movie[]>>;
+};
+
+const MovieForm: React.FC<Props> = ({ movie, setMovies }) => {
+    const [formData, setFormData] = useState({
+        title: movie?.title || '',
+        genre: movie?.genre || '',
+        decade: movie?.decade ? movie.decade.toString() : '',
+        rating: movie?.rating ? movie.rating.toString() : '',
+        posterUrl: movie?.posterUrl || '',
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            if (movie) {
+                const updatedMovie = await MovieService.updateMovie(movie.id, {
+                    ...formData,
+                    decade: Number(formData.decade),
+                    rating: Number(formData.rating),
+                });
+                setMovies((prev) => prev.map((m) => (m.id === movie.id ? updatedMovie : m)));
+            } else {
+                const newMovie = await MovieService.createMovie({
+                    ...formData,
+                    decade: Number(formData.decade),
+                    rating: Number(formData.rating),
+                });
+                setMovies((prev) => [...prev, newMovie]);
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="mb-3">
+            <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                placeholder="Title"
+            />
+            <input
+                type="text"
+                name="genre"
+                value={formData.genre}
+                onChange={handleChange}
+                required
+                placeholder="Genre"
+            />
+            <input
+                type="number"
+                name="decade"
+                value={formData.decade}
+                onChange={handleChange}
+                required
+                placeholder="Decade"
+            />
+            <input
+                type="number"
+                step="0.1"
+                name="rating"
+                value={formData.rating}
+                onChange={handleChange}
+                required
+                placeholder="Rating"
+            />
+            <input
+                type="url"
+                name="posterUrl"
+                value={formData.posterUrl}
+                onChange={handleChange}
+                required
+                placeholder="Poster URL"
+            />
+            <button type="submit" className="btn btn-success">
+                {movie ? 'Update' : 'Add'} Movie
+            </button>
+        </form>
+    );
+};
+
+export default MovieForm;
