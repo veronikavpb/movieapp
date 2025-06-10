@@ -53,7 +53,7 @@ const Header: React.FC = () => {
                         Logged in as: <strong>{username}</strong> ({role?.toLowerCase()})
                     </span>
                 )}
-                {(role === 'USER' || role === 'ADMIN') && (
+                {(role === 'user' || role === 'admin') && (
                     <button className="btn btn-danger" onClick={handleLogout}>
                         Logout
                     </button>

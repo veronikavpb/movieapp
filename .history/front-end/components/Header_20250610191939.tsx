@@ -21,10 +21,15 @@ const Header: React.FC = () => {
             }
         };
 
-        updateUserFromSession(); // Initial load
+        updateUserFromSession();
 
         window.addEventListener('storage-update', updateUserFromSession);
-        return () => window.removeEventListener('storage-update', updateUserFromSession);
+        window.addEventListener('storage', updateUserFromSession); // Also listen to real storage changes
+
+        return () => {
+            window.removeEventListener('storage-update', updateUserFromSession);
+            window.removeEventListener('storage', updateUserFromSession);
+        };
     }, []);
 
     const handleLogout = () => {
@@ -38,12 +43,12 @@ const Header: React.FC = () => {
                 🎥 Movie App
             </Link>
             <div>
-                {role === 'ADMIN' && (
+                {role === 'admin' && (
                     <Link className="btn btn-outline-primary mx-2" href="/movies">
                         Manage Movies
                     </Link>
                 )}
-                {role === 'USER' && (
+                {role === 'user' && (
                     <Link className="btn btn-outline-primary mx-2" href="/watchlist">
                         Watchlist
                     </Link>
@@ -53,7 +58,7 @@ const Header: React.FC = () => {
                         Logged in as: <strong>{username}</strong> ({role?.toLowerCase()})
                     </span>
                 )}
-                {(role === 'USER' || role === 'ADMIN') && (
+                {(role === 'user' || role === 'admin') && (
                     <button className="btn btn-danger" onClick={handleLogout}>
                         Logout
                     </button>
